@@ -1,0 +1,43 @@
+# Python
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.sqlite3
+__pycache__/
+
+# Django
+*.pot
+*.po
+*.mo
+/local_settings.py
+db.sqlite3-journal
+
+# Development environment
+.env
+.env.*
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Virtual environment
+venv/
+.venv/
+*.venv
+
+# Testing and coverage
+/coverage/
+.coverage
+.htmlcov/
+.pytest_cache/
+
+# Miscellaneous
+*.bak
+*.cache
+*.log
+*.tmp
+*.egg-info/
+dist/
+build/
