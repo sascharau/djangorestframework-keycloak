@@ -48,7 +48,7 @@ setup(
     name="drf_keycloak",
     use_scm_version={"version_scheme": "post-release"},
     setup_requires=["setuptools_scm"],
-    url="https://github.com/sascharau/drf_keycloak",
+    url="https://github.com/sascharau/djangorestframework-keycloak",
     license="MIT",
     description="Keycloak authentication plugin for Django REST Framework",
     long_description=Path("README.md").read_text(encoding="utf-8"),
