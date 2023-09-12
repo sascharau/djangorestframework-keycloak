@@ -20,7 +20,7 @@ class KeycloakApi:
         self.base_url = keycloak_settings.ISSUER
         self.client_id = keycloak_settings.CLIENT_ID
         self.realm_name = keycloak_settings.REALM
-        self.client_secret_key = keycloak_settings.CLIENT_SECRET
+        self.client_secret_key = keycloak_settings.CLIENT_SECRET or None
 
     @classmethod
     def get_jwks(cls, token):  # pragma: no cover

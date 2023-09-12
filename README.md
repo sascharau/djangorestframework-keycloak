@@ -1,6 +1,6 @@
 # Keycloak Authentication for Django Rest Framework
 
-In this project, we implement authentication using the Authorization Code Flow with Keycloak as the identity and access management service. Here is how the authentication flow is structured:
+In this project, we implement authentication using the **Authorization Code Flow** with Keycloak as the identity and access management service. Here is how the authentication flow is structured:
 
 1. **Frontend Responsibility**:
    - **User Registration and Login**: The frontend handles user registration and login through Keycloak, facilitating a seamless user experience.

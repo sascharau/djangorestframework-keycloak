@@ -10,7 +10,7 @@ DEFAULT = {
     "SERVER_URL": USER_SETTINGS.get("SERVER_URL"),
     "REALM": USER_SETTINGS.get("REALM"),
     "CLIENT_ID": None,
-    "CLIENT_SECRET": " ",
+    "CLIENT_SECRET": None,
     "AUDIENCE": "account",
     "ISSUER": f"{USER_SETTINGS.get('SERVER_URL')}/realms/{USER_SETTINGS.get('REALM')}",  # pylint: disable=unused-private-member
     "VERIFY_TOKENS_WITH_KEYCLOAK": False,
