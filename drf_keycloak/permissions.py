@@ -15,9 +15,22 @@ class HasPermission(BasePermission):
 
     def has_permission(self, request, view):
         try:
-            jwt_permission = request.auth["resource_access"][keycloak_settings.AUDIENCE]["roles"]
+            # Get the JWT permission path from the environment variable
+            jwt_permission_path = keycloak_settings.PERMISSION_PATH
+            # Split the path into individual keys
+            keys = jwt_permission_path.split('.')
+
+            # Get the JWT permission list using the keys
+            jwt_permission = request.auth
+            for key in keys:
+                jwt_permission = jwt_permission.get(key, {})
+
+            # If the final value is not a list, set it to an empty list
+            if not isinstance(jwt_permission, list):
+                jwt_permission = []
         except KeyError:
             jwt_permission = []
+
         return request.auth and self.permission in jwt_permission
 
     def has_object_permission(self, request, view, obj):
