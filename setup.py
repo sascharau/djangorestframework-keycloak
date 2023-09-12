@@ -56,7 +56,7 @@ setup(
     author_email="ideal3000developer@gmail.com",
     install_requires=[
         "requests>=2.28.1",
-        "PyJW>=2.6.0",
+        "PyJWT>=2.6.0",
         "Django>=4.0",
         "djangorestframework>=3.10"
     ],
