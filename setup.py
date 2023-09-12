@@ -51,7 +51,7 @@ setup(
     url="https://github.com/sascharau/drf_keycloak",
     license="MIT",
     description="Keycloak authentication plugin for Django REST Framework",
-    long_description=Path("README.rst").read_text(encoding="utf-8"),
+    long_description=Path("README.md").read_text(encoding="utf-8"),
     author="Sascha Rau",
     author_email="ideal3000developer@gmail.com",
     install_requires=[
