@@ -11,6 +11,7 @@ DEFAULT = {
     "CLIENT_ID": "account",
     "CLIENT_SECRET": None,
     "AUDIENCE": "account",
+    "ALGORITHM": "RS256",
     "ISSUER": "http://localhost:8080/realms/master",
     "VERIFY_TOKENS_WITH_KEYCLOAK": False,
     "PERMISSION_PATH": "resource_access.account.roles",

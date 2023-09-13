@@ -60,7 +60,7 @@ class JWToken:
             return jwt.decode(
                 token,
                 self.get_jwt_key(),
-                algorithms="RS256",
+                algorithms=keycloak_settings.ALGORITHM,
                 audience=keycloak_settings.AUDIENCE,
                 issuer=keycloak_settings.ISSUER,
                 options={
