@@ -55,10 +55,10 @@ setup(
     author="Sascha Rau",
     author_email="ideal3000developer@gmail.com",
     install_requires=[
-        "requests>=2.28.1",
-        "PyJWT>=2.6.0",
-        "Django>=4.0",
-        "djangorestframework>=3.10"
+        "django>=3.2",
+        "djangorestframework>=3.10",
+        "pyjwt>=1.7.1,<3",
+        "cryptography>=3.3.1"
     ],
     python_requires=">=3.10",
     extras_require=extras_require,
@@ -66,9 +66,11 @@ setup(
     include_package_data=True,
     zip_safe=False,
     classifiers=[
-        "Development Status :: 5 - Production/Stable",
+        "Development Status :: 4 - Beta",
         "Environment :: Web Environment",
         "Framework :: Django",
+        "Framework :: Django :: 3.2",
+        "Framework :: Django :: 4.0",
         "Framework :: Django :: 4.1",
         "Framework :: Django :: 4.2",
         "Intended Audience :: Developers",
@@ -76,6 +78,9 @@ setup(
         "Operating System :: OS Independent",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Topic :: Internet :: WWW/HTTP",
