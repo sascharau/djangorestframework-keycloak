@@ -22,6 +22,9 @@ class HasPermission(BasePermission):
 
             # Get the JWT permission list using the keys
             jwt_permission = request.auth
+            if not jwt_permission:
+                return False
+
             for key in keys:
                 jwt_permission = jwt_permission.get(key, {})
 
