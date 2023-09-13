@@ -10,7 +10,7 @@ DEFAULT = {
     "REALM": "master",
     "CLIENT_ID": "account",
     "CLIENT_SECRET": None,
-    "AUDIENCE": "account",
+    "AUDIENCE": None,
     "ALGORITHM": "RS256",
     "ISSUER": "http://localhost:8080/realms/master",
     "VERIFY_TOKENS_WITH_KEYCLOAK": False,
