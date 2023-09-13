@@ -30,9 +30,6 @@ extras_require = {
     "python-jose": [
         "python-jose==3.3.0",
     ],
-    "crypto": [
-        "cryptography>=3.3.1",
-    ],
 }
 
 extras_require["dev"] = (
