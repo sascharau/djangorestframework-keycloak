@@ -55,6 +55,7 @@ setup(
     author="Sascha Rau",
     author_email="ideal3000developer@gmail.com",
     install_requires=[
+        "requests>=2.26.0",
         "django>=3.2",
         "djangorestframework>=3.10",
         "pyjwt>=1.7.1,<3",
