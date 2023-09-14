@@ -95,6 +95,23 @@ MIDDLEWARE = [
 You should also look at Mozilla's [django-csp](https://github.com/mozilla/django-csp) package.
 
 
+### OpenAPI Schema with drf-spectacular
+
+in any `apps.py` or file that is loaded at startup
+
+```
+from django.apps import AppConfig
+
+class MyAppConfig(AppConfig):
+    """app config"""
+
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "myapp"
+
+    def ready(self):
+        import drf_keycloak.schema  # noqa: E402
+
+```
 
 ### Thanks
 Thanks to [`django-rest-framework-simplejwt`](https://github.com/jazzband/djangorestframework-simplejwt), the code was inspirational for this package.
