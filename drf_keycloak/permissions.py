@@ -26,7 +26,7 @@ class HasPermission(BasePermission):
                 return False
 
             for key in keys:
-                jwt_permission = jwt_permission.get(key, {})
+                jwt_permission = jwt_permission[key]
 
             # If the final value is not a list, set it to an empty list
             if not isinstance(jwt_permission, list):
