@@ -88,3 +88,17 @@ class TestKeycloakPermissions(TestCase):
         permission_check = HasPermission("fake")
         permission = permission_check.has_object_permission(request, None, user)
         self.assertFalse(permission)
+
+    def test_jwt_permission_is_none(self):
+        request = self.factory.get("/")
+        request.auth = None
+        permission_check = HasPermission("view-profile")
+        permission = permission_check.has_permission(request, None)
+        self.assertFalse(permission)
+
+    def test_jwt_permission_is_not_list(self):
+        request = self.factory.get("/")
+        request.auth = {"resource_access": {"account": {"roles": "view-profile"}}}
+        permission_check = HasPermission("view-profile")
+        permission = permission_check.has_permission(request, None)
+        self.assertFalse(permission)
