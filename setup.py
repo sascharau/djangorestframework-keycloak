@@ -5,10 +5,10 @@ from setuptools import find_packages, setup
 
 extras_require = {
     "test": [
-        "cryptography",
+        "pytest",
         "pytest-cov",
         "pytest-django",
-        "pytest-xdist",
+        "drf-spectacular",
         "pytest",
         "tox",
     ],
@@ -40,7 +40,6 @@ extras_require["dev"] = (
     + extras_require["python-jose"]
 )
 
-
 setup(
     name="drf_keycloak",
     use_scm_version={"version_scheme": "post-release"},
@@ -55,10 +54,10 @@ setup(
         "requests>=2.26.0",
         "django>=3.2",
         "djangorestframework>=3.10",
-        "pyjwt>=1.7.1,<3",
+        "pyjwt>=2,<3",
         "cryptography>=3.3.1"
     ],
-    python_requires=">=3.10",
+    python_requires=">=3.7",
     extras_require=extras_require,
     packages=find_packages(exclude=["tests", "tests.*", "licenses", "requirements"]),
     include_package_data=True,
