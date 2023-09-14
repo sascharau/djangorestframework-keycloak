@@ -32,6 +32,8 @@ venv/
 .coverage
 .htmlcov/
 .pytest_cache/
+.tox/
+coverage.xml
 
 # Miscellaneous
 *.bak
