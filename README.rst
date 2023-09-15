@@ -1,9 +1,8 @@
-
-
+=================================================
 Keycloak Authentication for Django Rest Framework
 =================================================
 
-In this project, we implement authentication using the **Authorization Code Flow** with Keycloak as the identity and access management service. Here is how the authentication flow is structured:
+In this project, we implement authentication using the *Authorization Code Flow* with Keycloak as the identity and access management service. Here is how the authentication flow is structured:
 
 1. **Frontend Responsibility**:
 
@@ -15,13 +14,21 @@ In this project, we implement authentication using the **Authorization Code Flow
 
 This approach allows us to keep the backend implementation relatively simple, focusing mainly on token validation, while leveraging Keycloak's robust authentication and authorization features through the frontend.
 
+Install
+_______
+
+.. code-block:: bash
+
+   pip install drf-keycloak
+
+
+
 Settings
 --------
 
-
 You can find a selection of variables in ``drf_keycloak.settings.py``, just overwrite them in the Django settings.
 
-.. code:: python
+.. code-block:: python
 
    KEYCLOAK_CONFIG = {
        "SERVER_URL": "http://localhost:8080/",
@@ -51,9 +58,9 @@ By setting the variable
 .. code-block:: python
 
    KEYCLOAK_CONFIG = {
-       ...
+       # ...
        "VERIFY_TOKENS_WITH_KEYCLOAK": True
-       ...
+       # ...
    }
 
 This means that the token is validated with the Keycloak API and locally.
@@ -67,7 +74,7 @@ Add ``keycloak`` to ``INSTALLED_APPS``.
 
    INSTALLED_APPS = [
        "django.contrib.auth",
-       ...
+       # ...
        "drf_keycloak"
    ]
 
@@ -77,9 +84,9 @@ Add ``drf_keycloak.authentication.KeycloakAuthBackend`` to DRF settings
 
    REST_FRAMEWORK = {
        "DEFAULT_AUTHENTICATION_CLASSES": [
-           ...
+           # ...
            "drf_keycloak.authentication.KeycloakAuthBackend",
-           ...
+           # ...
        ],
    }
 
@@ -110,7 +117,7 @@ For security reasons, use the optional middleware in ``drf_keycloak.middleware.H
 
    MIDDLEWARE = [
        "drf_keycloak.middleware.HeaderMiddleware",
-       ....
+       # ...
    ]
 
 You should also look at Mozilla's `django-csp <https://github.com/mozilla/django-csp>`_ package.
@@ -137,3 +144,4 @@ Thanks
 ******
 
 Thanks to `django-rest-framework-simplejwt <https://github.com/jazzband/djangorestframework-simplejwt>`_, the code was inspirational for this package.
+
