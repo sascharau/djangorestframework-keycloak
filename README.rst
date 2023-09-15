@@ -14,6 +14,15 @@ In this project, we implement authentication using the *Authorization Code Flow*
 
 This approach allows us to keep the backend implementation relatively simple, focusing mainly on token validation, while leveraging Keycloak's robust authentication and authorization features through the frontend.
 
+Install
+_______
+
+.. code-block:: bash
+
+   pip install drf-keycloak
+
+
+
 Settings
 --------
 
