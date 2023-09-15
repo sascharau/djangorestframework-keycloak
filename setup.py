@@ -41,9 +41,8 @@ extras_require["dev"] = (
 )
 
 setup(
-    name="drf_keycloak",
-    use_scm_version={"version_scheme": "post-release"},
-    setup_requires=["setuptools_scm"],
+    name="drf-keycloak",
+    version="v1.0.0",
     url="https://github.com/sascharau/djangorestframework-keycloak",
     license="MIT",
     description="Keycloak authentication plugin for Django REST Framework",
