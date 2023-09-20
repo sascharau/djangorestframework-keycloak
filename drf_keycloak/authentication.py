@@ -88,8 +88,7 @@ class KeycloakAuthBackend(authentication.BaseAuthentication):
         Reject users with is_active=False. Custom user models that don't have
         that attribute are allowed.
         """
-        is_active = getattr(user, "is_active", None)
-        return is_active or is_active is None
+        return getattr(user, "is_active", False)
 
     def update_user(self, user, claims):
         """
