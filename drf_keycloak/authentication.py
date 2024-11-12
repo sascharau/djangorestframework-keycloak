@@ -77,7 +77,8 @@ class KeycloakAuthBackend(authentication.BaseAuthentication):
         )
         if created:
             if keycloak_settings.VERIFY_TOKENS_WITH_KEYCLOAK:
-                validated_token = keycloak_api.get_userinfo(self.raw_token.decode())
+                token = self.raw_token.decode() if isinstance(self.raw_token, bytes) else self.raw_token
+                validated_token = keycloak_api.get_userinfo(token)
             user.set_unusable_password()
             self.update_user(user, validated_token)
 
