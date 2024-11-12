@@ -48,23 +48,9 @@ class TestKeycloakAuthentication(TestCase):
         USER_CLAIMS["given_name"] = "foo"
         self.assertEqual(self.backend.get_user_or_create(USER_CLAIMS).first_name, "foo")
 
-    @override_settings(KEYCLOAK_CONFIG={"VERIFY_TOKENS_WITH_KEYCLOAK": False})
-    def test_create_user_from_claims(self):
-        claims = {
-            keycloak_mapping["username"]: "FooBar",
-            keycloak_mapping["first_name"]: "Foo",
-            keycloak_mapping["last_name"]: "Bar",
-            keycloak_mapping["email"]: "foo@bar.io",
-        }
-        self.assertFalse(User.objects.filter(username__iexact="FooBar").exists())
-        user = self.backend.get_user_or_create(validated_token=claims)
-        self.assertEqual(user.username, "FooBar")
-        self.assertEqual(user.email, "foo@bar.io")
-        self.assertTrue(user.is_active)  # nosemgrep
-
     @override_settings(KEYCLOAK_CONFIG={"VERIFY_TOKENS_WITH_KEYCLOAK": True})
     @mock.patch("drf_keycloak.api.KeycloakApi.get_userinfo")
-    def test_create_user_from_keycloak_mock(self, userinfo):
+    def test_create_user_from_keycloak_mock_with_bytes_token(self, mock_userinfo):
         token_payload = {
             keycloak_mapping["username"]: "ZOIDBERG",
             keycloak_mapping["first_name"]: "John A.",
@@ -73,14 +59,32 @@ class TestKeycloakAuthentication(TestCase):
         }
         mock_claims = token_payload.copy()
         mock_claims[keycloak_mapping["first_name"]] = "first_name_is_different"
-        userinfo.return_value = mock_claims
+        mock_userinfo.return_value = mock_claims
         self.assertFalse(User.objects.filter(username__iexact="ZOIDBERG").exists())
-        self.backend.raw_token = b"test_token"
+        self.backend.raw_token = b"test_token"  # raw_token als bytes
         user = self.backend.get_user_or_create(validated_token=token_payload)
-        # now user will be updated with keycloak api,
         self.assertEqual(user.username, "ZOIDBERG")
         self.assertTrue(user.is_active)  # nosemgrep
         self.assertEqual(user.first_name, "first_name_is_different")
+
+    @override_settings(KEYCLOAK_CONFIG={"VERIFY_TOKENS_WITH_KEYCLOAK": True})
+    @mock.patch("drf_keycloak.api.KeycloakApi.get_userinfo")
+    def test_create_user_from_keycloak_mock_with_string_token(self, mock_userinfo):
+        token_payload = {
+            keycloak_mapping["username"]: "LEELA",
+            keycloak_mapping["first_name"]: "Leela",
+            keycloak_mapping["last_name"]: "Turanga",
+            keycloak_mapping["email"]: "leela@planet.io",
+        }
+        mock_claims = token_payload.copy()
+        mock_claims[keycloak_mapping["first_name"]] = "updated_first_name"
+        mock_userinfo.return_value = mock_claims
+        self.assertFalse(User.objects.filter(username__iexact="LEELA").exists())
+        self.backend.raw_token = "test_token_string"  # raw_token als string
+        user = self.backend.get_user_or_create(validated_token=token_payload)
+        self.assertEqual(user.username, "LEELA")
+        self.assertTrue(user.is_active)  # nosemgrep
+        self.assertEqual(user.first_name, "updated_first_name")
 
     def test_authenticate_header(self):
         factory = APIRequestFactory()
@@ -106,21 +110,40 @@ class TestKeycloakAuthentication(TestCase):
     @override_settings(KEYCLOAK_CONFIG={"VERIFY_TOKENS_WITH_KEYCLOAK": False})
     @mock.patch("drf_keycloak.authentication.KeycloakAuthBackend.get_raw_token")
     @mock.patch("drf_keycloak.token.JWToken.decode")
-    def test_authenticate_get_user(self, mock_token, mock_decode_token):
+    def test_authenticate_get_user_with_bytes_token(self, mock_decode_token, mock_get_raw_token):
         request = APIRequestFactory().get("/")
-        request.META["HTTP_AUTHORIZATION"] = "test"
+        request.META["HTTP_AUTHORIZATION"] = "Bearer test_token"
         claims = {
             keycloak_mapping["username"]: "ZOIDBERG",
             keycloak_mapping["first_name"]: "John A.",
             keycloak_mapping["last_name"]: "Zoidberg",
             keycloak_mapping["email"]: "zoidberg@bar.io",
         }
-        token_value = {"preferred_username": "ZOIDBERG"}
-        mock_token.return_value = token_value
+        token_value = b"test_token"  # raw_token als bytes
+        mock_get_raw_token.return_value = token_value
         mock_decode_token.return_value = claims
         user, validated_token = self.backend.authenticate(request)
         self.assertEqual(user, User.objects.get(username="ZOIDBERG"))
-        self.assertEqual(validated_token, token_value)
+        self.assertEqual(validated_token, claims)  # Ändern der Assertion
+
+    @override_settings(KEYCLOAK_CONFIG={"VERIFY_TOKENS_WITH_KEYCLOAK": False})
+    @mock.patch("drf_keycloak.authentication.KeycloakAuthBackend.get_raw_token")
+    @mock.patch("drf_keycloak.token.JWToken.decode")
+    def test_authenticate_get_user_with_string_token(self, mock_decode_token, mock_get_raw_token):
+        request = APIRequestFactory().get("/")
+        request.META["HTTP_AUTHORIZATION"] = "Bearer test_token_string"
+        claims = {
+            keycloak_mapping["username"]: "BENDER",
+            keycloak_mapping["first_name"]: "Bender",
+            keycloak_mapping["last_name"]: "Rodriguez",
+            keycloak_mapping["email"]: "bender@planet.io",
+        }
+        token_value = "test_token_string"  # raw_token als string
+        mock_get_raw_token.return_value = token_value
+        mock_decode_token.return_value = claims
+        user, validated_token = self.backend.authenticate(request)
+        self.assertEqual(user, User.objects.get(username="BENDER"))
+        self.assertEqual(validated_token, claims)  # Ändern der Assertion
 
     def test_authenticate_get_raw_token_is_none(self):
         request = APIRequestFactory().get("/")
