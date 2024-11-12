@@ -42,7 +42,7 @@ extras_require["dev"] = (
 
 setup(
     name="drf-keycloak",
-    version="v1.0.0",
+    version="v1.0.1",
     url="https://github.com/sascharau/djangorestframework-keycloak",
     license="MIT",
     description="Keycloak authentication plugin for Django REST Framework",
