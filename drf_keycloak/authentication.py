@@ -60,8 +60,11 @@ class KeycloakAuthBackend(authentication.BaseAuthentication):
         self.raw_token = self.get_raw_token(header)
         if self.raw_token is None:
             return None
-        validated_token = JWToken(self.raw_token).payload
-        return self.get_user_or_create(validated_token), validated_token
+        try:
+            validated_token = JWToken(self.raw_token).payload
+            return self.get_user_or_create(validated_token), validated_token
+        except APIException as e:
+            return None
 
     def get_user_or_create(self, validated_token):
         """
