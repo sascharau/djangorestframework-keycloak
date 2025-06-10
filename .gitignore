@@ -35,6 +35,12 @@ venv/
 .tox/
 coverage.xml
 
+# Test project (not shipped with package)
+test_project/db.sqlite3
+test_project/.env*
+test_project/media/
+test_project/static/
+
 # Miscellaneous
 *.bak
 *.cache
