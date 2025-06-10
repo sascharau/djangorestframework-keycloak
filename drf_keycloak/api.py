@@ -17,7 +17,7 @@ class KeycloakApi:
 
     def __init__(self):
         self.connection = requests.Session()
-        self.base_url = keycloak_settings.ISSUER
+        self.base_url = getattr(keycloak_settings, 'SERVER_URL', keycloak_settings.ISSUER)
         self.client_id = keycloak_settings.CLIENT_ID
         self.realm_name = keycloak_settings.REALM
         self.client_secret_key = keycloak_settings.CLIENT_SECRET or None
@@ -25,7 +25,8 @@ class KeycloakApi:
     @classmethod
     def get_jwks(cls, token):  # pragma: no cover
         """To decode the JWT token, we need a key. We get this from the API"""
-        url = f"{keycloak_settings.ISSUER}/protocol/openid-connect/certs"
+        server_url = getattr(keycloak_settings, 'SERVER_URL', keycloak_settings.ISSUER)
+        url = f"{server_url}/protocol/openid-connect/certs"
         jwks_client = PyJWKClient(url, lifespan=60 * 10)
         signing_key = jwks_client.get_signing_key_from_jwt(token)
         return signing_key.key

@@ -5,6 +5,7 @@ from rest_framework.exceptions import APIException
 from .api import keycloak_api
 from .settings import keycloak_settings
 
+from .exceptions import TokenBackendError, TokenBackendExpiredToken
 
 class TokenError(Exception):
     """Name for the Exception"""
@@ -21,10 +22,9 @@ class JWToken:
 
     def __init__(self, token=None):
         self.token = token
+        self.audience = keycloak_settings.AUDIENCE
         if self.token:
             self.payload = self.decode(self.token)
-            if keycloak_settings.VERIFY_TOKENS_WITH_KEYCLOAK:
-                self.verify_token_with_keycloak()
 
     def verify_token_with_keycloak(self):
         """
@@ -41,8 +41,6 @@ class JWToken:
         @return: jwt key
         """
         global PUBLIC_KEYCLOAK_KEY_CACHE  # pylint: disable=global-statement
-        if keycloak_settings.VERIFY_TOKENS_WITH_KEYCLOAK:
-            return keycloak_api.get_jwks(self.token)
         if PUBLIC_KEYCLOAK_KEY_CACHE:
             return PUBLIC_KEYCLOAK_KEY_CACHE
         PUBLIC_KEYCLOAK_KEY_CACHE = keycloak_api.get_public_key()
@@ -56,20 +54,23 @@ class JWToken:
         Raises a `AuthenticationFailed` if the token is malformed, if its
         signature check fails, or if its 'exp' claim indicates it has expired.
         """
+
         try:
             return jwt.decode(
                 token,
                 self.get_jwt_key(),
                 algorithms=keycloak_settings.ALGORITHM,
-                audience=keycloak_settings.AUDIENCE,
+                audience=self.audience,
                 issuer=keycloak_settings.ISSUER,
                 options={
-                    "verify_aud": keycloak_settings.AUDIENCE,
-                    "verify_signature": True,
-                    "verify_exp": True,
+                    "verify_aud": self.audience is not None,
+                    "verify_signature": keycloak_settings.VERIFY_SIGNATURE,
+                    "verify_exp": True
                 },
             )
-        except jwt.InvalidAlgorithmError as error:
-            raise TokenError("Invalid algorithm specified") from error
-        except jwt.InvalidTokenError as error:
-            raise TokenError("Token is invalid or expired") from error
+        except jwt.InvalidAlgorithmError as e:
+            raise TokenBackendError("Algorithm is invalid") from e
+        except jwt.ExpiredSignatureError as e:
+            raise TokenBackendExpiredToken("Token is expired") from e
+        except jwt.InvalidTokenError as e:
+            raise TokenBackendError("Token is invalid") from e
