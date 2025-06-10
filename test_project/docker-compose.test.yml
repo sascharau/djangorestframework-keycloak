@@ -1,0 +1,40 @@
+version: '3.3'
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:22.0
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: dev-file
+    ports:
+      - "8080:8080"
+    command:
+      - start-dev
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+
+  test-backend:
+    build: 
+      context: ..
+      dockerfile: test_project/Dockerfile
+    environment:
+      - KEYCLOAK_SERVER_URL=http://keycloak:8080/realms/test-realm
+      - KEYCLOAK_REALM=test-realm
+      - KEYCLOAK_ISSUER=http://localhost:8080/realms/test-realm
+      - PYTHONPATH=/app
+    depends_on:
+      - keycloak
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app/test_project
+      - ..:/app
+    working_dir: /app
+    command: >
+      sh -c "pip install PyJWT && cd test_project && 
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+
+volumes:
+  keycloak_data:
