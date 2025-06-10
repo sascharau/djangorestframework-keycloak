@@ -12,7 +12,6 @@ def pytest_configure():
             }
         },
         INSTALLED_APPS=[
-            # Füge hier die Namen der Django-Apps hinzu, die für deine Tests benötigt werden
             'django.contrib.auth',
             'django.contrib.contenttypes',
             'django.contrib.sessions',
