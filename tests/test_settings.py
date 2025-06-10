@@ -12,7 +12,6 @@ class KeycloakSettingsTestCase(TestCase):
         self.assertEqual(keycloak_settings.CLIENT_ID, 'account')
         self.assertIsNone(keycloak_settings.CLIENT_SECRET)
         self.assertIsNone(keycloak_settings.AUDIENCE)
-        self.assertFalse(keycloak_settings.VERIFY_TOKENS_WITH_KEYCLOAK)
         self.assertEqual(keycloak_settings.PERMISSION_PATH, "resource_access.account.roles")
         self.assertEqual(keycloak_settings.USER_ID_FIELD, "username")
         self.assertEqual(keycloak_settings.USER_ID_CLAIM, "preferred_username")

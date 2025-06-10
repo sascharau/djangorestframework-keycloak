@@ -31,18 +31,17 @@ You can find a selection of variables in ``drf_keycloak.settings.py``, just over
 .. code-block:: python
 
    KEYCLOAK_CONFIG = {
-       "SERVER_URL": "http://localhost:8080/",
+       "SERVER_URL": "http://localhost:8080/realms/master",
        "REALM": "master",
        "CLIENT_ID": "account",
        "CLIENT_SECRET": None,
        "AUDIENCE": None,
        "ALGORITHM": "RS256",
        "ISSUER": "http://localhost:8080/realms/master",
-       "VERIFY_TOKENS_WITH_KEYCLOAK": False,
        "PERMISSION_PATH": "resource_access.account.roles",
        "USER_ID_FIELD": "username",
        "USER_ID_CLAIM": "preferred_username",
-
+       "VERIFY_SIGNATURE": True,
        # user mapping
        # django keys, keycloak keys
        "CLAIM_MAPPING": {
@@ -53,17 +52,6 @@ You can find a selection of variables in ``drf_keycloak.settings.py``, just over
        },
    }
 
-By setting the variable
-
-.. code-block:: python
-
-   KEYCLOAK_CONFIG = {
-       # ...
-       "VERIFY_TOKENS_WITH_KEYCLOAK": True
-       # ...
-   }
-
-This means that the token is validated with the Keycloak API and locally.
 
 Enable
 ******
