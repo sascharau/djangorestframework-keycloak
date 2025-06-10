@@ -6,17 +6,17 @@ from rest_framework.settings import APISettings
 
 # default settings from keycloak
 DEFAULT = {
-    "SERVER_URL": "http://localhost:8080/",
+    "SERVER_URL": "http://localhost:8080/realms/master",
     "REALM": "master",
     "CLIENT_ID": "account",
     "CLIENT_SECRET": None,
     "AUDIENCE": None,
     "ALGORITHM": "RS256",
     "ISSUER": "http://localhost:8080/realms/master",
-    "VERIFY_TOKENS_WITH_KEYCLOAK": False,
     "PERMISSION_PATH": "resource_access.account.roles",
     "USER_ID_FIELD": "username",
     "USER_ID_CLAIM": "preferred_username",
+    "VERIFY_SIGNATURE": True,
     # django key, keycloak value
     "CLAIM_MAPPING": {
         "first_name": "given_name",
