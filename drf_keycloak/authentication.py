@@ -1,11 +1,11 @@
 """ Keycloak User Authentication """
 from django.contrib.auth import get_user_model
 from rest_framework import authentication
-from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.exceptions import AuthenticationFailed, APIException
 
-from .api import keycloak_api
 from .settings import keycloak_settings
 from .token import JWToken
+from .exceptions import TokenBackendError
 
 
 class InvalidToken(AuthenticationFailed):
@@ -63,7 +63,7 @@ class KeycloakAuthBackend(authentication.BaseAuthentication):
         try:
             validated_token = JWToken(self.raw_token).payload
             return self.get_user_or_create(validated_token), validated_token
-        except APIException as e:
+        except (APIException, TokenBackendError):
             return None
 
     def get_user_or_create(self, validated_token):
@@ -79,9 +79,6 @@ class KeycloakAuthBackend(authentication.BaseAuthentication):
             **{keycloak_settings.USER_ID_FIELD: user_id}
         )
         if created:
-            if keycloak_settings.VERIFY_TOKENS_WITH_KEYCLOAK:
-                token = self.raw_token.decode() if isinstance(self.raw_token, bytes) else self.raw_token
-                validated_token = keycloak_api.get_userinfo(token)
             user.set_unusable_password()
             self.update_user(user, validated_token)
 
