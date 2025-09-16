@@ -27,6 +27,9 @@ venv/
 .venv/
 *.venv
 
+# uv lock file
+uv.lock
+
 # Testing and coverage
 /coverage/
 .coverage
