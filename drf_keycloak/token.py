@@ -41,6 +41,8 @@ class JWToken:
         @return: jwt key
         """
         global PUBLIC_KEYCLOAK_KEY_CACHE  # pylint: disable=global-statement
+        if keycloak_settings.VERIFY_TOKENS_WITH_KEYCLOAK:
+            return keycloak_api.get_jwks(self.token)
         if PUBLIC_KEYCLOAK_KEY_CACHE:
             return PUBLIC_KEYCLOAK_KEY_CACHE
         PUBLIC_KEYCLOAK_KEY_CACHE = keycloak_api.get_public_key()
