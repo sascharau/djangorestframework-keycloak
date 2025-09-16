@@ -1,10 +1,11 @@
-""" test keycloak api  """
+"""test keycloak api"""
+
 from unittest import mock
 
 import requests
 from django.test import SimpleTestCase
-from django.utils.encoding import force_str
 from django.test.utils import override_settings
+from django.utils.encoding import force_str
 from rest_framework.exceptions import APIException
 
 from drf_keycloak.api import KeycloakApi
@@ -34,7 +35,9 @@ class TestKeycloakApi(SimpleTestCase):
         mock_response.status_code = 200
         mock_public_key.return_value = mock_response
         public_key = KeycloakApi().get_public_key()
-        expected_result = "-----BEGIN PUBLIC KEY-----\n" + "test" + "\n-----END PUBLIC KEY-----"
+        expected_result = (
+            "-----BEGIN PUBLIC KEY-----\n" + "test" + "\n-----END PUBLIC KEY-----"
+        )
         self.assertEqual(public_key, expected_result)
 
     @mock.patch("requests.Session.get")
@@ -64,7 +67,8 @@ class TestKeycloakApi(SimpleTestCase):
         with self.assertRaises(RuntimeError) as error:
             api_instance.get_introspect("fake_token")
         self.assertEqual(
-            'Please set KEYCLOAK_CONFIG["CLIENT_SECRET"] in your settings.', str(error.exception)
+            'Please set KEYCLOAK_CONFIG["CLIENT_SECRET"] in your settings.',
+            str(error.exception),
         )
 
     def test_clean_response(self):

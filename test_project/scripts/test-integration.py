@@ -2,10 +2,12 @@
 """
 Integration test script for DRF Keycloak package
 """
-import requests
+
 import json
 import sys
 import time
+
+import requests
 
 KEYCLOAK_URL = "http://localhost:8080"
 DJANGO_URL = "http://localhost:8000"
@@ -14,32 +16,36 @@ CLIENT_ID = "test-client"
 USERNAME = "testuser"
 PASSWORD = "testpass"
 
+
 def get_access_token():
     """Get access token from Keycloak"""
     print("🔑 Getting access token from Keycloak...")
-    
+
     token_url = f"{KEYCLOAK_URL}/realms/{REALM}/protocol/openid-connect/token"
     data = {
-        'username': USERNAME,
-        'password': PASSWORD,
-        'grant_type': 'password',
-        'client_id': CLIENT_ID
+        "username": USERNAME,
+        "password": PASSWORD,
+        "grant_type": "password",
+        "client_id": CLIENT_ID,
     }
-    
+
     try:
         response = requests.post(token_url, data=data)
         response.raise_for_status()
         token_data = response.json()
         print("✅ Token obtained successfully")
-        return token_data['access_token']
+        return token_data["access_token"]
     except Exception as e:
-        print(f"❌ Failed to get token: {e} Ensure Keycloak is running and credentials und User are correct?")
+        print(
+            f"❌ Failed to get token: {e} Ensure Keycloak is running and credentials und User are correct?"
+        )
         return None
+
 
 def test_public_endpoint():
     """Test public endpoint (no auth required)"""
     print("\n🌍 Testing public endpoint...")
-    
+
     try:
         response = requests.get(f"{DJANGO_URL}/api/public/")
         response.raise_for_status()
@@ -50,12 +56,13 @@ def test_public_endpoint():
         print(f"❌ Public endpoint failed: {e}")
         return False
 
+
 def test_protected_endpoint(token):
     """Test protected endpoint (auth required)"""
     print("\n🔒 Testing protected endpoint...")
-    
-    headers = {'Authorization': f'Bearer {token}'}
-    
+
+    headers = {"Authorization": f"Bearer {token}"}
+
     try:
         response = requests.get(f"{DJANGO_URL}/api/protected/", headers=headers)
         response.raise_for_status()
@@ -66,10 +73,11 @@ def test_protected_endpoint(token):
         print(f"❌ Protected endpoint failed: {e}")
         return False
 
+
 def test_protected_endpoint_without_token():
     """Test protected endpoint without token (should fail)"""
     print("\n🚫 Testing protected endpoint without token...")
-    
+
     try:
         response = requests.get(f"{DJANGO_URL}/api/protected/")
         if response.status_code == 401:
@@ -82,16 +90,17 @@ def test_protected_endpoint_without_token():
         print(f"❌ Unexpected error: {e}")
         return False
 
+
 def test_permission_endpoint(token):
     """Test endpoint requiring specific permission"""
     print("\n🛡️  Testing permission-protected endpoint...")
-    
-    headers = {'Authorization': f'Bearer {token}'}
-    
+
+    headers = {"Authorization": f"Bearer {token}"}
+
     try:
         response = requests.get(f"{DJANGO_URL}/api/profile/", headers=headers)
         print(f"📋 Profile endpoint status: {response.status_code}")
-        
+
         if response.status_code == 200:
             data = response.json()
             print(f"✅ Profile endpoint response: {json.dumps(data, indent=2)}")
@@ -107,49 +116,51 @@ def test_permission_endpoint(token):
         print(f"❌ Permission endpoint failed: {e}")
         return False
 
+
 def main():
     """Run all integration tests"""
     print("🧪 Starting DRF Keycloak Integration Tests")
     print("=" * 50)
-    
+
     # Wait for services to be ready
     print("⏳ Waiting for services to be ready...")
     time.sleep(2)
-    
+
     results = []
-    
+
     # Test 1: Public endpoint
     results.append(test_public_endpoint())
-    
+
     # Test 2: Get token
     token = get_access_token()
     if not token:
         print("❌ Cannot continue without token")
         sys.exit(1)
-    
+
     # Test 3: Protected endpoint with token
     results.append(test_protected_endpoint(token))
-    
+
     # Test 4: Protected endpoint without token
     results.append(test_protected_endpoint_without_token())
-    
+
     # Test 5: Permission endpoint
     results.append(test_permission_endpoint(token))
-    
+
     # Summary
     print("\n" + "=" * 50)
     print("📊 Test Summary:")
     passed = sum(results)
     total = len(results)
-    
+
     print(f"   ✅ Passed: {passed}/{total}")
-    
+
     if passed == total:
         print("🎉 All tests passed!")
         sys.exit(0)
     else:
         print("❌ Some tests failed!")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
