@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "drf-keycloak"
 version = "1.0.3"
 description = "Keycloak authentication plugin for Django REST Framework"
-readme = {file = "README.rst", content-type = "text/x-rst"}
+readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.7"
 license = {text = "MIT"}
 authors = [
@@ -103,3 +103,9 @@ ignore = [
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
+
+[dependency-groups]
+dev = [
+    "build>=0.10.0",
+    "twine>=4.0.2",
+]

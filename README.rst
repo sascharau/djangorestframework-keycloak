@@ -78,6 +78,21 @@ Add ``drf_keycloak.authentication.KeycloakAuthBackend`` to DRF settings
        ],
    }
 
+
+By setting the variable:
+
+.. code-block:: python
+
+   KEYCLOAK_CONFIG = {
+       ...
+       "VERIFY_TOKENS_WITH_KEYCLOAK": True
+       ...
+   }
+
+This means that the token is validated with the Keycloak API and locally.
+By default this is set to False, which means that the token is validated locally only.
+
+
 Permissions
 ***********
 
@@ -132,4 +147,3 @@ Thanks
 ******
 
 Thanks to `django-rest-framework-simplejwt <https://github.com/jazzband/djangorestframework-simplejwt>`_, the code was inspirational for this package.
-
