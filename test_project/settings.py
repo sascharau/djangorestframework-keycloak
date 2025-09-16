@@ -74,8 +74,8 @@ REST_FRAMEWORK = {
 KEYCLOAK_CONFIG = {
     'SERVER_URL': os.environ.get('KEYCLOAK_SERVER_URL', 'http://localhost:8080/realms/test-realm'),
     'REALM': os.environ.get('KEYCLOAK_REALM', 'test-realm'),
-    'CLIENT_ID': os.environ.get('KEYCLOAK_CLIENT_ID', 'test-client'),
-    'CLIENT_SECRET': os.environ.get('KEYCLOAK_CLIENT_SECRET', None),
+    'CLIENT_ID': os.environ.get('KEYCLOAK_CLIENT_ID', 'test-client-confidential'),
+    'CLIENT_SECRET': os.environ.get('KEYCLOAK_CLIENT_SECRET', 'test-secret-123'),
     'AUDIENCE': os.environ.get('KEYCLOAK_AUDIENCE', None),
     'ISSUER': os.environ.get('KEYCLOAK_ISSUER', 'http://localhost:8080/realms/test-realm'),
 }
