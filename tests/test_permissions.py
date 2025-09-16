@@ -1,10 +1,12 @@
-""" keycloak tests permissions """
+"""keycloak tests permissions"""
+
 from time import time
 
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory
 
 from drf_keycloak.permissions import HasPermission
+
 from .helpers import create_user
 
 TOKEN_CLAIMS = {
@@ -21,7 +23,9 @@ TOKEN_CLAIMS = {
     "session_state": "10105ce8-25be-43c9-9a58-416a11a36711",
     "acr": "0",
     "allowed-origins": ["*"],
-    "realm_access": {"roles": ["offline_access", "default-roles-zeus", "uma_authorization"]},
+    "realm_access": {
+        "roles": ["offline_access", "default-roles-zeus", "uma_authorization"]
+    },
     "resource_access": {"account": {"roles": []}},
     "scope": "openid profile email",
     "sid": "10105ce8-25be-43c9-9a58-416a11a36711",

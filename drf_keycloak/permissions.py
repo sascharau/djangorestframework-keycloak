@@ -1,4 +1,5 @@
-""" Get User permissions from Keycloak token  """
+"""Get User permissions from Keycloak token"""
+
 from rest_framework.permissions import BasePermission
 
 from .settings import keycloak_settings
@@ -18,7 +19,7 @@ class HasPermission(BasePermission):
             # Get the JWT permission path from the environment variable
             jwt_permission_path = keycloak_settings.PERMISSION_PATH
             # Split the path into individual keys
-            keys = jwt_permission_path.split('.')
+            keys = jwt_permission_path.split(".")
 
             # Get the JWT permission list using the keys
             jwt_permission = request.auth

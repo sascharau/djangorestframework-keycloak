@@ -1,0 +1,47 @@
+python:
+  - changed-files:
+    - any-glob-to-any-file:
+      - "drf_keycloak/**/*.py"
+      - "test_project/**/*.py"
+      - "pyproject.toml"
+      - "requirements*.txt"
+      - "uv.lock"
+
+tests:
+  - changed-files:
+    - any-glob-to-any-file:
+      - "tests/**/*"
+      - "test_project/**/*test*.py"
+      - "pytest.ini"
+      - "tox.ini"
+
+documentation:
+  - changed-files:
+    - any-glob-to-any-file:
+      - "*.md"
+      - "*.rst"
+      - "*.txt"
+      - "docs/**/*"
+
+config:
+  - changed-files:
+    - any-glob-to-any-file:
+      - ".github/**/*"
+      - ".pre-commit-config.yaml"
+      - "pyproject.toml"
+      - "Dockerfile"
+      - "docker-compose*.yml"
+      - "Makefile"
+
+ci:
+  - changed-files:
+    - any-glob-to-any-file:
+      - ".github/workflows/**/*"
+      - ".github/dependabot.yml"
+
+dependencies:
+  - changed-files:
+    - any-glob-to-any-file:
+      - "pyproject.toml"
+      - "requirements*.txt"
+      - "uv.lock"

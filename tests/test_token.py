@@ -1,11 +1,12 @@
-""" tests for token functions """
+"""tests for token functions"""
+
 from unittest import mock
 
 from django.test import TestCase
 
 import drf_keycloak.token as token_model
-from drf_keycloak.token import JWToken
 from drf_keycloak.exceptions import TokenBackendError
+from drf_keycloak.token import JWToken
 
 
 class TestKeycloakToken(TestCase):
@@ -40,5 +41,3 @@ class TestKeycloakToken(TestCase):
         with self.assertRaises(TokenBackendError) as error:
             JWToken(token)
         self.assertEqual("Token is invalid", str(error.exception))
-
-

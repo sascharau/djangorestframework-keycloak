@@ -1,4 +1,5 @@
-""" test keycloak auth """
+"""test keycloak auth"""
+
 from unittest import mock
 
 from django.contrib.auth import get_user_model
@@ -6,9 +7,10 @@ from django.test import TestCase
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.test import APIRequestFactory
 
-from drf_keycloak.authentication import KeycloakAuthBackend, InvalidToken
+from drf_keycloak.authentication import InvalidToken, KeycloakAuthBackend
 from drf_keycloak.settings import keycloak_settings
-from .helpers import create_user, USERNAME, EMAIL, FIRST_NAME, LAST_NAME
+
+from .helpers import EMAIL, FIRST_NAME, LAST_NAME, USERNAME, create_user
 
 User = get_user_model()
 keycloak_mapping = keycloak_settings.CLAIM_MAPPING
@@ -75,7 +77,9 @@ class TestKeycloakAuthentication(TestCase):
 
     def test_authenticate_header(self):
         factory = APIRequestFactory()
-        self.assertEqual(self.backend.authenticate_header(factory.request()), "Bearer realm='api'")
+        self.assertEqual(
+            self.backend.authenticate_header(factory.request()), "Bearer realm='api'"
+        )
 
     def test_get_raw_token(self):
         fake_token = "CoolToken"
@@ -96,7 +100,9 @@ class TestKeycloakAuthentication(TestCase):
 
     @mock.patch("drf_keycloak.authentication.KeycloakAuthBackend.get_raw_token")
     @mock.patch("drf_keycloak.token.JWToken.decode")
-    def test_authenticate_get_user_with_bytes_token(self, mock_decode_token, mock_get_raw_token):
+    def test_authenticate_get_user_with_bytes_token(
+        self, mock_decode_token, mock_get_raw_token
+    ):
         request = APIRequestFactory().get("/")
         request.META["HTTP_AUTHORIZATION"] = "Bearer test_token"
         claims = {
@@ -114,7 +120,9 @@ class TestKeycloakAuthentication(TestCase):
 
     @mock.patch("drf_keycloak.authentication.KeycloakAuthBackend.get_raw_token")
     @mock.patch("drf_keycloak.token.JWToken.decode")
-    def test_authenticate_get_user_with_string_token(self, mock_decode_token, mock_get_raw_token):
+    def test_authenticate_get_user_with_string_token(
+        self, mock_decode_token, mock_get_raw_token
+    ):
         request = APIRequestFactory().get("/")
         request.META["HTTP_AUTHORIZATION"] = "Bearer test_token_string"
         claims = {
