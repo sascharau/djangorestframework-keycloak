@@ -17,6 +17,7 @@ DEFAULT = {
     "USER_ID_FIELD": "username",
     "USER_ID_CLAIM": "preferred_username",
     "VERIFY_SIGNATURE": True,
+    "VERIFY_TOKENS_WITH_KEYCLOAK": False,
     # django key, keycloak value
     "CLAIM_MAPPING": {
         "first_name": "given_name",
