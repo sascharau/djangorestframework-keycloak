@@ -1,11 +1,12 @@
-""" Verify AccessToken """
+"""Verify AccessToken"""
+
 import jwt
 from rest_framework.exceptions import APIException
 
 from .api import keycloak_api
+from .exceptions import TokenBackendError, TokenBackendExpiredToken
 from .settings import keycloak_settings
 
-from .exceptions import TokenBackendError, TokenBackendExpiredToken
 
 class TokenError(Exception):
     """Name for the Exception"""
@@ -67,7 +68,7 @@ class JWToken:
                 options={
                     "verify_aud": self.audience is not None,
                     "verify_signature": keycloak_settings.VERIFY_SIGNATURE,
-                    "verify_exp": True
+                    "verify_exp": True,
                 },
             )
         except jwt.InvalidAlgorithmError as e:

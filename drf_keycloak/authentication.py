@@ -1,11 +1,12 @@
-""" Keycloak User Authentication """
+"""Keycloak User Authentication"""
+
 from django.contrib.auth import get_user_model
 from rest_framework import authentication
-from rest_framework.exceptions import AuthenticationFailed, APIException
+from rest_framework.exceptions import APIException, AuthenticationFailed
 
+from .exceptions import TokenBackendError
 from .settings import keycloak_settings
 from .token import JWToken
-from .exceptions import TokenBackendError
 
 
 class InvalidToken(AuthenticationFailed):
@@ -73,7 +74,9 @@ class KeycloakAuthBackend(authentication.BaseAuthentication):
         try:
             user_id = validated_token[keycloak_settings.USER_ID_CLAIM]
         except KeyError as exc:
-            raise InvalidToken("Token contained no recognizable user identification") from exc
+            raise InvalidToken(
+                "Token contained no recognizable user identification"
+            ) from exc
 
         user, created = self.user_model.objects.get_or_create(
             **{keycloak_settings.USER_ID_FIELD: user_id}
