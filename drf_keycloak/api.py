@@ -1,4 +1,5 @@
-""" Manage Keycloak """
+"""Manage Keycloak"""
+
 import requests
 from jwt import PyJWKClient
 from rest_framework import status
@@ -17,7 +18,9 @@ class KeycloakApi:
 
     def __init__(self):
         self.connection = requests.Session()
-        self.base_url = getattr(keycloak_settings, 'SERVER_URL', keycloak_settings.ISSUER)
+        self.base_url = getattr(
+            keycloak_settings, "SERVER_URL", keycloak_settings.ISSUER
+        )
         self.client_id = keycloak_settings.CLIENT_ID
         self.realm_name = keycloak_settings.REALM
         self.client_secret_key = keycloak_settings.CLIENT_SECRET or None
@@ -32,14 +35,17 @@ class KeycloakApi:
     def get_userinfo(self, token):
         """Used to keep the user up to date."""
         response = self.get(
-            path="protocol/openid-connect/userinfo", headers={"Authorization": "Bearer " + token}
+            path="protocol/openid-connect/userinfo",
+            headers={"Authorization": "Bearer " + token},
         )
         return response
 
     def get_introspect(self, token):
         """Is used to validate the token."""
         if not self.client_secret_key:
-            raise RuntimeError('Please set KEYCLOAK_CONFIG["CLIENT_SECRET"] in your settings.')
+            raise RuntimeError(
+                'Please set KEYCLOAK_CONFIG["CLIENT_SECRET"] in your settings.'
+            )
         post_data = {
             "client_id": self.client_id,
             "client_secret": self.client_secret_key,
@@ -56,7 +62,11 @@ class KeycloakApi:
         if not public_key:
             return None
         try:
-            return "-----BEGIN PUBLIC KEY-----\n" + public_key + "\n-----END PUBLIC KEY-----"
+            return (
+                "-----BEGIN PUBLIC KEY-----\n"
+                + public_key
+                + "\n-----END PUBLIC KEY-----"
+            )
         except TypeError:
             return public_key
 
@@ -70,7 +80,11 @@ class KeycloakApi:
         try:
             error_json = response.json()
             # Try different possible error message fields from Keycloak
-            message = error_json.get("message") or error_json.get("error_description") or error_json.get("error")
+            message = (
+                error_json.get("message")
+                or error_json.get("error_description")
+                or error_json.get("error")
+            )
             if not message:
                 # Fall back to content if no error fields found in JSON
                 message = response.content

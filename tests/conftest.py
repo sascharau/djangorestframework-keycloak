@@ -1,22 +1,23 @@
 from django.conf import settings
 
+
 def pytest_configure():
     settings.configure(
         DEBUG=True,
         ROOT_URLCONF="tests.urls",
         SECRET_KEY="notasecret",
         DATABASES={
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': ':memory:',
+            "default": {
+                "ENGINE": "django.db.backends.sqlite3",
+                "NAME": ":memory:",
             }
         },
         INSTALLED_APPS=[
-            'django.contrib.auth',
-            'django.contrib.contenttypes',
-            'django.contrib.sessions',
-            'django.contrib.messages',
-            'drf_keycloak',
+            "django.contrib.auth",
+            "django.contrib.contenttypes",
+            "django.contrib.sessions",
+            "django.contrib.messages",
+            "drf_keycloak",
         ],
         KEYCLOAK_CONFIG={
             "SERVER_URL": "https://my-server-url.com",

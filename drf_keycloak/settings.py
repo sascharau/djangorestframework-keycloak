@@ -1,4 +1,4 @@
-""" default keycloak settings """
+"""default keycloak settings"""
 
 from django.conf import settings
 from django.test.signals import setting_changed
