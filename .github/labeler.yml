@@ -1,41 +1,47 @@
-# Python code
 python:
-  - "drf_keycloak/**/*.py"
-  - "test_project/**/*.py"
-  - "pyproject.toml"
-  - "requirements*.txt"
-  - "uv.lock"
+  - changed-files:
+    - any-glob-to-any-file:
+      - "drf_keycloak/**/*.py"
+      - "test_project/**/*.py"
+      - "pyproject.toml"
+      - "requirements*.txt"
+      - "uv.lock"
 
-# Tests
 tests:
-  - "tests/**/*"
-  - "test_project/**/*test*.py"
-  - "pytest.ini"
-  - "tox.ini"
+  - changed-files:
+    - any-glob-to-any-file:
+      - "tests/**/*"
+      - "test_project/**/*test*.py"
+      - "pytest.ini"
+      - "tox.ini"
 
-# Documentation
 documentation:
-  - "*.md"
-  - "*.rst"
-  - "*.txt"
-  - "docs/**/*"
+  - changed-files:
+    - any-glob-to-any-file:
+      - "*.md"
+      - "*.rst"
+      - "*.txt"
+      - "docs/**/*"
 
-# Configuration
 config:
-  - ".github/**/*"
-  - ".pre-commit-config.yaml"
-  - "pyproject.toml"
-  - "Dockerfile"
-  - "docker-compose*.yml"
-  - "Makefile"
+  - changed-files:
+    - any-glob-to-any-file:
+      - ".github/**/*"
+      - ".pre-commit-config.yaml"
+      - "pyproject.toml"
+      - "Dockerfile"
+      - "docker-compose*.yml"
+      - "Makefile"
 
-# CI/CD
 ci:
-  - ".github/workflows/**/*"
-  - ".github/dependabot.yml"
+  - changed-files:
+    - any-glob-to-any-file:
+      - ".github/workflows/**/*"
+      - ".github/dependabot.yml"
 
-# Dependencies
 dependencies:
-  - "pyproject.toml"
-  - "requirements*.txt"
-  - "uv.lock"
+  - changed-files:
+    - any-glob-to-any-file:
+      - "pyproject.toml"
+      - "requirements*.txt"
+      - "uv.lock"
