@@ -51,9 +51,8 @@ test = [
     "tox",
 ]
 lint = [
-    "flake8",
-    "pep8",
-    "isort",
+    "ruff",
+    "pre-commit",
 ]
 doc = [
     "Sphinx>=1.6.5,<2",
@@ -69,9 +68,8 @@ dev = [
     "pytest-django",
     "drf-spectacular",
     "tox",
-    "flake8",
-    "pep8",
-    "isort",
+    "ruff",
+    "pre-commit",
     "Sphinx>=1.6.5,<2",
     "sphinx_rtd_theme>=0.1.9",
     "python-jose==3.3.0"
@@ -82,3 +80,26 @@ python-jose = [
 
 [tool.setuptools.packages.find]
 exclude = ["tests", "tests.*", "test_project", "test_project.*", "venv", "venv.*", "dist", "dist.*", "build", "build.*"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py37"
+extend-exclude = ["migrations"]
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # line too long, handled by black/ruff formatter
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
