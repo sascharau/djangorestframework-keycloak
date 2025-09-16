@@ -22,11 +22,9 @@ class KeycloakApi:
         self.realm_name = keycloak_settings.REALM
         self.client_secret_key = keycloak_settings.CLIENT_SECRET or None
 
-    @classmethod
-    def get_jwks(cls, token):  # pragma: no cover
+    def get_jwks(self, token):  # pragma: no cover
         """To decode the JWT token, we need a key. We get this from the API"""
-        server_url = getattr(keycloak_settings, 'SERVER_URL', keycloak_settings.ISSUER)
-        url = f"{server_url}/protocol/openid-connect/certs"
+        url = f"{self.base_url}/protocol/openid-connect/certs"
         jwks_client = PyJWKClient(url, lifespan=60 * 10)
         signing_key = jwks_client.get_signing_key_from_jwt(token)
         return signing_key.key
@@ -54,11 +52,13 @@ class KeycloakApi:
         """
         public key as key to decode JWT
         """
-        response = self.get().get("public_key")
+        public_key = self.get().get("public_key")
+        if not public_key:
+            return None
         try:
-            return "-----BEGIN PUBLIC KEY-----\n" + response + "\n-----END PUBLIC KEY-----"
+            return "-----BEGIN PUBLIC KEY-----\n" + public_key + "\n-----END PUBLIC KEY-----"
         except TypeError:
-            return response
+            return public_key
 
     def clean_response(self, response):
         """checks the status_code and tries to return json or content"""
@@ -68,7 +68,12 @@ class KeycloakApi:
             except ValueError:
                 return response.content
         try:
-            message = response.json()["message"]
+            error_json = response.json()
+            # Try different possible error message fields from Keycloak
+            message = error_json.get("message") or error_json.get("error_description") or error_json.get("error")
+            if not message:
+                # Fall back to content if no error fields found in JSON
+                message = response.content
         except (KeyError, ValueError):
             message = response.content
         raise APIException(message, response.status_code)
