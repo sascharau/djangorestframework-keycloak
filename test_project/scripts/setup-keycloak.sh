@@ -8,6 +8,8 @@ ADMIN_USER="admin"
 ADMIN_PASS="admin"
 REALM_NAME="test-realm"
 CLIENT_ID="test-client"
+CONFIDENTIAL_CLIENT_ID="test-client-confidential"
+CONFIDENTIAL_CLIENT_SECRET="test-secret-123"
 
 echo "🔧 Setting up Keycloak for testing..."
 
@@ -28,15 +30,21 @@ echo "✅ Keycloak is ready!"
 
 # Get admin token
 echo "🔑 Getting admin token..."
-ADMIN_TOKEN=$(curl -s -X POST "$KEYCLOAK_URL/realms/master/protocol/openid-connect/token" \
+TOKEN_RESPONSE=$(curl -s -X POST "$KEYCLOAK_URL/realms/master/protocol/openid-connect/token" \
   -H "Content-Type: application/x-www-form-urlencoded" \
   -d "username=$ADMIN_USER" \
   -d "password=$ADMIN_PASS" \
   -d "grant_type=password" \
-  -d "client_id=admin-cli" | \
-  python3 -c "import sys, json; print(json.load(sys.stdin)['access_token'])")
+  -d "client_id=admin-cli" 2>/dev/null)
 
-echo "✅ Admin token obtained"
+# Check if response contains access_token
+if echo "$TOKEN_RESPONSE" | grep -q "access_token"; then
+    ADMIN_TOKEN=$(echo "$TOKEN_RESPONSE" | python3 -c "import sys, json; print(json.load(sys.stdin)['access_token'])")
+    echo "✅ Admin token obtained"
+else
+    echo "❌ Failed to get admin token. Response: $TOKEN_RESPONSE"
+    exit 1
+fi
 
 # Create realm
 echo "🏗️  Creating realm: $REALM_NAME"
@@ -64,10 +72,34 @@ curl -s -X POST "$KEYCLOAK_URL/admin/realms/$REALM_NAME/clients" \
     "implicitFlowEnabled": false,
     "directAccessGrantsEnabled": true,
     "serviceAccountsEnabled": false,
+    "defaultClientScopes": ["openid", "profile", "email"],
+    "optionalClientScopes": ["address", "phone"],
     "attributes": {
       "jwt.credential": "true"
     }
   }' || echo "Client might already exist"
+
+# Create confidential client for introspection
+echo "🔧 Creating confidential client: $CONFIDENTIAL_CLIENT_ID"
+curl -s -X POST "$KEYCLOAK_URL/admin/realms/$REALM_NAME/clients" \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "clientId": "'$CONFIDENTIAL_CLIENT_ID'",
+    "enabled": true,
+    "publicClient": false,
+    "directAccessGrantsEnabled": true,
+    "protocol": "openid-connect",
+    "standardFlowEnabled": false,
+    "implicitFlowEnabled": false,
+    "serviceAccountsEnabled": true,
+    "secret": "'$CONFIDENTIAL_CLIENT_SECRET'",
+    "defaultClientScopes": ["openid", "profile", "email"],
+    "optionalClientScopes": ["address", "phone"],
+    "attributes": {
+      "jwt.credential": "true"
+    }
+  }' || echo "Confidential client might already exist"
 
 # Create test user
 echo "👤 Creating test user..."
