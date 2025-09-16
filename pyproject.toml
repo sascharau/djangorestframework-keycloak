@@ -72,7 +72,7 @@ dev = [
     "pre-commit",
     "Sphinx>=1.6.5,<2",
     "sphinx_rtd_theme>=0.1.9",
-    "python-jose==3.3.0"
+    "python-jose==3.5.0"
 ]
 python-jose = [
     "python-jose==3.3.0"
