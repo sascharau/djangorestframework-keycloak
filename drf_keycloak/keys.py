@@ -35,7 +35,10 @@ _REFRESH_COOLDOWN = 60
 _lock = threading.Lock()
 _client = None
 _client_url = None
-_last_refresh = 0.0
+# -inf (not 0.0): time.monotonic()'s epoch is arbitrary, so on a freshly booted
+# host monotonic() can be < the cooldown and 0.0 would wrongly block the very
+# first refresh. -inf means "never refreshed yet -> allow".
+_last_refresh = float("-inf")
 
 
 def _certs_url():
@@ -98,7 +101,7 @@ def reset_jwks_client():
     with _lock:
         _client = None
         _client_url = None
-        _last_refresh = 0.0
+        _last_refresh = float("-inf")
 
 
 def get_signing_key(token):
