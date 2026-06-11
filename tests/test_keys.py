@@ -67,6 +67,18 @@ class TestSigningKeyResolution(TestCase):
         self.assertEqual(key, "ROTATED")
         self.assertEqual(client.refresh_calls, 1)
 
+    def test_first_refresh_allowed_when_monotonic_below_cooldown(self):
+        # Regression: time.monotonic()'s epoch is arbitrary, so on a freshly
+        # booted CI host it can be < the cooldown. The first forced refresh must
+        # still be allowed (a 0.0 sentinel wrongly blocked it -> "key not found").
+        token = make_token(kid="kid-2")
+        client = keys_module._get_client()
+        client.next_keys = [FakeKey("kid-2", key="ROTATED")]
+        with mock.patch.object(keys_module.time, "monotonic", return_value=5.0):
+            key = get_signing_key(token)
+        self.assertEqual(key, "ROTATED")
+        self.assertEqual(client.refresh_calls, 1)
+
     def test_random_kid_flood_is_rate_limited(self):
         client = keys_module._get_client()
         # none of these kids will ever match
