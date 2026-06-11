@@ -9,84 +9,88 @@ from django.utils.encoding import force_str
 from rest_framework.exceptions import APIException
 
 from drf_keycloak.api import KeycloakApi
+from drf_keycloak.exceptions import KeycloakAPIError
+
+from .conftest import TEST_ISSUER, TEST_SERVER_URL
+
+
+def _config(**extra):
+    base = {"SERVER_URL": TEST_SERVER_URL, "ISSUER": TEST_ISSUER}
+    base.update(extra)
+    return base
 
 
 class TestKeycloakApi(SimpleTestCase):
     fake_response = {"key": "value"}
 
-    def mock_response(self, status_code, content=None):
-        """Mock Response to test responses"""
+    def mock_response(self, status_code, content=None, json_data=None):
         response = mock.Mock()
-        response.json.return_value = self.fake_response
+        response.json.return_value = (
+            json_data if json_data is not None else self.fake_response
+        )
         response.status_code = status_code
         response.content = content
         return response
 
     @mock.patch("requests.Session.get")
-    def test_public_key_return_none(self, mock_public_key):
-        mock_public_key.return_value = self.mock_response(200)
-        public_key = KeycloakApi().get_public_key()
-        self.assertIsNone(public_key)
+    def test_get_userinfo_is_callable(self, mock_get):
+        mock_get.return_value = self.mock_response(200)
+        self.assertEqual(self.fake_response, KeycloakApi().get_userinfo("fake_token"))
 
-    @mock.patch("requests.Session.get")
-    def test_public_key(self, mock_public_key):
-        mock_response = mock.Mock()
-        mock_response.json.return_value = {"public_key": "test"}
-        mock_response.status_code = 200
-        mock_public_key.return_value = mock_response
-        public_key = KeycloakApi().get_public_key()
-        expected_result = (
-            "-----BEGIN PUBLIC KEY-----\n" + "test" + "\n-----END PUBLIC KEY-----"
-        )
-        self.assertEqual(public_key, expected_result)
-
-    @mock.patch("requests.Session.get")
-    def test_get_userinfo_is_callable(self, mock_get_userinfo):
-        mock_get_userinfo.return_value = self.mock_response(200)
-        userinfo = KeycloakApi().get_userinfo("fake_token")
-        self.assertEqual(self.fake_response, userinfo)
-
-    @override_settings(KEYCLOAK_CONFIG={"CLIENT_SECRET": "foo"})
+    @override_settings(KEYCLOAK_CONFIG=_config(CLIENT_SECRET="foo"))
     @mock.patch("requests.Session.post")
-    def test_get_introspect_is_callable(self, mock_get_introspect):
-        mock_get_introspect.return_value = self.mock_response(200, "fake")
-        introspect = KeycloakApi().get_introspect("fake_token")
-        self.assertEqual(self.fake_response, introspect)
+    def test_get_introspect_is_callable(self, mock_post):
+        mock_post.return_value = self.mock_response(200, "fake")
+        self.assertEqual(self.fake_response, KeycloakApi().get_introspect("fake_token"))
 
-    @override_settings(KEYCLOAK_CONFIG={"CLIENT_SECRET": "foo"})
+    @override_settings(KEYCLOAK_CONFIG=_config(CLIENT_SECRET="foo"))
     @mock.patch("requests.Session.post")
-    def test_fail_get_introspect(self, mock_get_introspect):
-        mock_get_introspect.return_value = self.mock_response(500, "fake")
-        with self.assertRaises(APIException) as error:
+    def test_introspect_server_error_is_503(self, mock_post):
+        mock_post.return_value = self.mock_response(500, "boom")
+        with self.assertRaises(KeycloakAPIError):
             KeycloakApi().get_introspect("fake_token")
-        self.assertEqual("fake", str(error.exception))
 
-    def test_fail_get_no_client_secret(self):
-        api_instance = KeycloakApi()
-        api_instance.client_secret_key = None
-        with self.assertRaises(RuntimeError) as error:
-            api_instance.get_introspect("fake_token")
+    @override_settings(KEYCLOAK_CONFIG=_config(CLIENT_SECRET="foo"))
+    @mock.patch("requests.Session.post")
+    def test_introspect_network_failure_is_503(self, mock_post):
+        mock_post.side_effect = requests.ConnectionError("refused")
+        with self.assertRaises(KeycloakAPIError):
+            KeycloakApi().get_introspect("fake_token")
+
+    @override_settings(KEYCLOAK_CONFIG=_config())
+    def test_introspect_without_client_secret_raises(self):
+        with self.assertRaises(RuntimeError) as ctx:
+            KeycloakApi().get_introspect("fake_token")
         self.assertEqual(
             'Please set KEYCLOAK_CONFIG["CLIENT_SECRET"] in your settings.',
-            str(error.exception),
+            str(ctx.exception),
         )
 
-    def test_clean_response(self):
-        # all good
-        http_200_ok = KeycloakApi().clean_response(self.mock_response(200))
-        self.assertEqual(self.fake_response, http_200_ok)
-        # response massage
-        with self.assertRaises(APIException) as error:
-            KeycloakApi().clean_response(self.mock_response(400, "error"))
-        self.assertEqual("error", str(error.exception))
-        # default Exception massage
-        with self.assertRaises(APIException) as error:
-            KeycloakApi().clean_response(self.mock_response(500))
-        self.assertEqual("A server error occurred.", str(error.exception))
-        # status ok only content
+    def test_clean_response_ok_json(self):
+        self.assertEqual(
+            self.fake_response, KeycloakApi().clean_response(self.mock_response(200))
+        )
+
+    def test_clean_response_ok_non_json_returns_content(self):
         response = requests.Response()
         response.status_code = 200
-        content = "Foo Bar"
-        response._content = content.encode()  # pylint: disable=protected-access
-        http_200_ok_no_json = KeycloakApi().clean_response(response)
-        self.assertEqual("Foo Bar", force_str(http_200_ok_no_json))
+        response._content = b"Foo Bar"
+        self.assertEqual("Foo Bar", force_str(KeycloakApi().clean_response(response)))
+
+    def test_clean_response_client_error_preserves_status(self):
+        response = self.mock_response(400, "error", json_data={"error": "bad"})
+        with self.assertRaises(APIException) as ctx:
+            KeycloakApi().clean_response(response)
+        self.assertEqual(400, ctx.exception.status_code)
+        self.assertEqual("bad", str(ctx.exception.detail))
+
+    def test_clean_response_server_error_is_503(self):
+        with self.assertRaises(KeycloakAPIError):
+            KeycloakApi().clean_response(self.mock_response(500, "down"))
+
+    @override_settings(KEYCLOAK_CONFIG=_config(CLIENT_ID="live-client"))
+    def test_settings_read_live_via_property(self):
+        # the singleton must reflect override_settings without re-instantiation
+        from drf_keycloak.api import keycloak_api
+
+        self.assertEqual("live-client", keycloak_api.client_id)
