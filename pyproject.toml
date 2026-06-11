@@ -4,18 +4,18 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "drf-keycloak"
-version = "1.0.3"
+version = "2.0.0"
 description = "Keycloak authentication plugin for Django REST Framework"
 readme = {file = "README.md", content-type = "text/markdown"}
-requires-python = ">=3.7"
+requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [
     {name = "Sascha Rau", email = "ideal3000developer@gmail.com"},
 ]
 dependencies = [
     "requests>=2.26.0",
-    "django>=3.2",
-    "djangorestframework>=3.10",
+    "django>=4.2",
+    "djangorestframework>=3.14",
     "pyjwt>=2,<3",
     "cryptography>=3.3.1"
 ]
@@ -23,17 +23,16 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Environment :: Web Environment",
     "Framework :: Django",
-    "Framework :: Django :: 3.2",
-    "Framework :: Django :: 4.0",
-    "Framework :: Django :: 4.1",
     "Framework :: Django :: 4.2",
-    "Framework :: Django :: 5.0",
-    "Framework :: Django :: 5.1",
+    "Framework :: Django :: 5.2",
+    "Framework :: Django :: 6.0",
     "Intended Audience :: Developers",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Topic :: Internet :: WWW/HTTP",
@@ -55,8 +54,8 @@ lint = [
     "pre-commit",
 ]
 doc = [
-    "Sphinx>=1.6.5,<2",
-    "sphinx>=1.6.5,<10",
+    "Sphinx>=7,<9",
+    "sphinx_rtd_theme>=2",
 ]
 dev = [
     "pytest-watch",
@@ -70,12 +69,8 @@ dev = [
     "tox",
     "ruff",
     "pre-commit",
-    "Sphinx>=1.6.5,<2",
-    "sphinx_rtd_theme>=0.1.9",
-    "python-jose==3.3.0"
-]
-python-jose = [
-    "python-jose==3.3.0"
+    "Sphinx>=7,<9",
+    "sphinx_rtd_theme>=2",
 ]
 
 [tool.setuptools.packages.find]
@@ -83,7 +78,7 @@ exclude = ["tests", "tests.*", "test_project", "test_project.*", "venv", "venv.*
 
 [tool.ruff]
 line-length = 88
-target-version = "py37"
+target-version = "py310"
 extend-exclude = ["migrations"]
 
 [tool.ruff.lint]
