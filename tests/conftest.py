@@ -1,5 +1,10 @@
 from django.conf import settings
 
+# Keep SERVER_URL and ISSUER coherent so tests that decode real tokens can
+# validate the `iss` claim against the same realm the keys are "served" from.
+TEST_SERVER_URL = "https://kc.test/realms/test"
+TEST_ISSUER = "https://kc.test/realms/test"
+
 
 def pytest_configure():
     settings.configure(
@@ -20,11 +25,10 @@ def pytest_configure():
             "drf_keycloak",
         ],
         KEYCLOAK_CONFIG={
-            "SERVER_URL": "https://my-server-url.com",
-            "REALM": "my-realm",
+            "SERVER_URL": TEST_SERVER_URL,
+            "ISSUER": TEST_ISSUER,
         },
         MIDDLEWARE=(
-            "drf_keycloak.middleware.HeaderMiddleware",
             "django.middleware.security.SecurityMiddleware",
             "django.contrib.sessions.middleware.SessionMiddleware",
             "django.middleware.common.CommonMiddleware",
