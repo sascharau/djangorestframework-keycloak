@@ -1,8 +1,34 @@
-.PHONY: help setup-keycloak token curl-test test-integration
+.PHONY: help quickstart install test-unit start-keycloak setup-keycloak \
+	start-django token curl-test test-integration clean
+
+COMPOSE = docker compose -f docker-compose.test.yml
 
 help: ## Show this help message
 	@echo "Available commands:"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-20s %s\n", $$1, $$2}'
+
+quickstart: ## Show the step-by-step testing guide
+	@echo "Step-by-step integration test against Keycloak 26:"
+	@echo "  1. make start-keycloak   # boot Keycloak in Docker (wait ~30-60s)"
+	@echo "  2. make setup-keycloak   # create realm, clients, test user"
+	@echo "  3. make start-django     # run the Django test server (separate terminal)"
+	@echo "  4. make curl-test        # hit the API endpoints"
+	@echo "  5. make clean            # stop containers and remove volumes"
+
+install: ## Install the package (editable, with test extras)
+	@pip install -e '..[test]'
+
+test-unit: ## Run the package unit tests
+	@cd .. && python -m pytest tests/ -q
+
+start-keycloak: ## Start Keycloak (Docker)
+	@$(COMPOSE) up -d keycloak
+	@echo "Keycloak starting on http://localhost:8080 (admin/admin)."
+	@echo "Wait ~30-60s for it to be ready, then run: make setup-keycloak"
+
+start-django: ## Start the Django test server (local)
+	@python manage.py migrate
+	@python manage.py runserver 0.0.0.0:8000
 
 setup-keycloak: ## Setup Keycloak realm and test data
 	@echo "🔧 Setting up Keycloak configuration..."
@@ -37,6 +63,10 @@ curl-test: ## Test API endpoints with curl
 		echo "❌ Failed to get token"; \
 	fi
 
-test-integration: ## Run complete integration test with docker
-	@echo "🧪 Running integration test with docker..."
+test-integration: ## Run the integration test (needs Keycloak + Django running)
+	@echo "🧪 Running integration test..."
 	@python scripts/test-integration.py
+
+clean: ## Stop containers and remove volumes
+	@echo "🧹 Stopping containers and removing volumes..."
+	@$(COMPOSE) down -v
