@@ -1,8 +1,10 @@
 # DRF Keycloak Testing
 
 Quick testing setup for the DRF Keycloak package with real Keycloak integration.
+Runs **Keycloak 26** (`quay.io/keycloak/keycloak:26.6.1`) in Docker with a clean
+in-memory database on every boot.
 
-⚠️ **Note**: This test project is **not shipped with the package** (excluded in `setup.py`).
+**Note**: This test project is **not shipped with the package** (excluded in `pyproject.toml`).
 
 ## Quick Start
 
@@ -10,7 +12,7 @@ Quick testing setup for the DRF Keycloak package with real Keycloak integration.
 # Option 1: Complete automated test (recommended)
 make test-integration
 
-# Option 2: Step by step manual testing  
+# Option 2: Step by step manual testing
 make start-keycloak      # Wait 1-2 minutes for Keycloak to start
 make setup-keycloak      # Configure realm and test users
 make start-django        # Start Django (in separate terminal)
@@ -31,7 +33,7 @@ make curl-test           # Test endpoints
 | `make token` | ↳ setup-keycloak | Get test token from Keycloak |
 | `make start-django` | ↳ setup-keycloak | Start Django test server |
 | `make curl-test` | ↳ start-django | Test API endpoints |
-| `make test-integration` | Docker | Full automated test |
+| `make test-integration` | ↳ start-django | Run the integration test script |
 
 ## Test Endpoints
 
