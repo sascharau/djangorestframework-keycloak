@@ -24,7 +24,7 @@ until curl -f "$KEYCLOAK_URL/realms/master" > /dev/null 2>&1; do
         echo "❌ Timeout waiting for Keycloak after ${timeout}s"
         exit 1
     fi
-    echo "   ... still waiting (${counter}s)"
+    echo "... still waiting (${counter}s)"
 done
 echo "✅ Keycloak is ready!"
 
@@ -72,7 +72,7 @@ curl -s -X POST "$KEYCLOAK_URL/admin/realms/$REALM_NAME/clients" \
     "implicitFlowEnabled": false,
     "directAccessGrantsEnabled": true,
     "serviceAccountsEnabled": false,
-    "defaultClientScopes": ["openid", "profile", "email"],
+    "defaultClientScopes": ["profile", "email"],
     "optionalClientScopes": ["address", "phone"],
     "attributes": {
       "jwt.credential": "true"
@@ -94,7 +94,7 @@ curl -s -X POST "$KEYCLOAK_URL/admin/realms/$REALM_NAME/clients" \
     "implicitFlowEnabled": false,
     "serviceAccountsEnabled": true,
     "secret": "'$CONFIDENTIAL_CLIENT_SECRET'",
-    "defaultClientScopes": ["openid", "profile", "email"],
+    "defaultClientScopes": ["profile", "email"],
     "optionalClientScopes": ["address", "phone"],
     "attributes": {
       "jwt.credential": "true"
@@ -132,13 +132,13 @@ curl -s -X POST "$KEYCLOAK_URL/admin/realms/$REALM_NAME/roles" \
 echo "✅ Keycloak setup complete!"
 echo ""
 echo "📋 Test Configuration:"
-echo "   Realm: $REALM_NAME"
-echo "   Client ID: $CLIENT_ID"
-echo "   Test User: testuser / testpass"
-echo "   JWKS URL: $KEYCLOAK_URL/realms/$REALM_NAME/protocol/openid-connect/certs"
+echo "Realm: $REALM_NAME"
+echo "Client ID: $CLIENT_ID"
+echo "Test User: testuser / testpass"
+echo "JWKS URL: $KEYCLOAK_URL/realms/$REALM_NAME/protocol/openid-connect/certs"
 echo ""
 echo "🧪 To get a test token:"
-echo "   curl -X POST '$KEYCLOAK_URL/realms/$REALM_NAME/protocol/openid-connect/token' \\"
+echo "curl -X POST '$KEYCLOAK_URL/realms/$REALM_NAME/protocol/openid-connect/token' \\"
 echo "     -H 'Content-Type: application/x-www-form-urlencoded' \\"
 echo "     -d 'username=testuser' \\"
 echo "     -d 'password=testpass' \\"

@@ -26,7 +26,6 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    "drf_keycloak.middleware.HeaderMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -76,7 +75,6 @@ KEYCLOAK_CONFIG = {
     "SERVER_URL": os.environ.get(
         "KEYCLOAK_SERVER_URL", "http://localhost:8080/realms/test-realm"
     ),
-    "REALM": os.environ.get("KEYCLOAK_REALM", "test-realm"),
     "CLIENT_ID": os.environ.get("KEYCLOAK_CLIENT_ID", "test-client-confidential"),
     "CLIENT_SECRET": os.environ.get("KEYCLOAK_CLIENT_SECRET", "test-secret-123"),
     "AUDIENCE": os.environ.get("KEYCLOAK_AUDIENCE", None),

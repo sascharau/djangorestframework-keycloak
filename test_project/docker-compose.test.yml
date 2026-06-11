@@ -1,26 +1,27 @@
-version: '3.3'
-
 services:
   keycloak:
-    image: quay.io/keycloak/keycloak:22.0
+    image: quay.io/keycloak/keycloak:26.6.1
     environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-      KC_DB: dev-file
+      # Keycloak 26 renamed the bootstrap admin vars (KEYCLOAK_ADMIN[_PASSWORD]
+      # are deprecated). These create the initial admin/admin account.
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      # In-memory H2: a throwaway test DB that starts clean on every boot.
+      # (A persisted volume breaks across Keycloak major upgrades.)
+      KC_DB: dev-mem
+      KC_HEALTH_ENABLED: "true"
     ports:
       - "8080:8080"
+      - "9000:9000"   # management port (health: /health/ready)
     command:
       - start-dev
-    volumes:
-      - keycloak_data:/opt/keycloak/data
 
   test-backend:
-    build: 
+    build:
       context: ..
       dockerfile: test_project/Dockerfile
     environment:
       - KEYCLOAK_SERVER_URL=http://keycloak:8080/realms/test-realm
-      - KEYCLOAK_REALM=test-realm
       - KEYCLOAK_ISSUER=http://localhost:8080/realms/test-realm
       - PYTHONPATH=/app
     depends_on:
@@ -32,9 +33,6 @@ services:
       - ..:/app
     working_dir: /app
     command: >
-      sh -c "pip install PyJWT && cd test_project && 
+      sh -c "cd test_project &&
              python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
-
-volumes:
-  keycloak_data:
