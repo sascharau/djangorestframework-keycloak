@@ -4,7 +4,7 @@ All significant changes to the project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [2.0.0] - Unreleased
+## [2.0.0] - 2026-06-11
 
 This release fixes correctness and security defects in token validation. Several
 fixes change runtime behavior, so it is a major release. Read the **Changed
