@@ -7,35 +7,33 @@ from .settings import keycloak_settings
 
 class HasPermission(BasePermission):
     """
-    Allows the User access if they have the expected permission
+    Allows the User access if they have the expected permission.
+
+    Use either as a configured instance ``HasPermission("view-profile")`` or as
+    a subclass that sets the ``permission`` class attribute.
     """
+
+    permission = None
 
     def __init__(self, permission=None):
         if permission:
             self.permission = permission
 
     def has_permission(self, request, view):
+        if not request.auth:
+            return False
+
+        jwt_permission = request.auth
         try:
-            # Get the JWT permission path from the environment variable
-            jwt_permission_path = keycloak_settings.PERMISSION_PATH
-            # Split the path into individual keys
-            keys = jwt_permission_path.split(".")
-
-            # Get the JWT permission list using the keys
-            jwt_permission = request.auth
-            if not jwt_permission:
-                return False
-
-            for key in keys:
+            for key in keycloak_settings.PERMISSION_PATH.split("."):
                 jwt_permission = jwt_permission[key]
+        except (KeyError, TypeError):
+            # Path missing, or a segment was a list/str instead of a dict.
+            return False
 
-            # If the final value is not a list, set it to an empty list
-            if not isinstance(jwt_permission, list):
-                jwt_permission = []
-        except KeyError:
-            jwt_permission = []
-
-        return request.auth and self.permission in jwt_permission
+        if not isinstance(jwt_permission, list):
+            return False
+        return self.permission in jwt_permission
 
     def has_object_permission(self, request, view, obj):
         return self.has_permission(request, view)

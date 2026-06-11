@@ -1,47 +1,61 @@
-"""Manage Keycloak"""
+"""Manage Keycloak HTTP calls (userinfo and token introspection)."""
+
+import logging
 
 import requests
-from jwt import PyJWKClient
+from django.utils.encoding import force_str
 from rest_framework import status
 from rest_framework.exceptions import APIException
 
+from .exceptions import KeycloakAPIError
 from .settings import keycloak_settings
+
+logger = logging.getLogger("drf_keycloak")
 
 
 class KeycloakApi:
-    """
-    call KeycloakApi
-    it contains userinfo, introspect, and public_key only
+    """Thin client for the Keycloak endpoints this package needs.
+
+    Configuration is read live from ``keycloak_settings`` on every call so that
+    ``override_settings`` / runtime reconfiguration is honored (the previous
+    implementation snapshotted settings at import time).
     """
 
     timeout = 30
 
     def __init__(self):
         self.connection = requests.Session()
-        self.base_url = getattr(
-            keycloak_settings, "SERVER_URL", keycloak_settings.ISSUER
-        )
-        self.client_id = keycloak_settings.CLIENT_ID
-        self.realm_name = keycloak_settings.REALM
-        self.client_secret_key = keycloak_settings.CLIENT_SECRET or None
 
-    def get_jwks(self, token):  # pragma: no cover
-        """To decode the JWT token, we need a key. We get this from the API"""
-        url = f"{self.base_url}/protocol/openid-connect/certs"
-        jwks_client = PyJWKClient(url, lifespan=60 * 10)
-        signing_key = jwks_client.get_signing_key_from_jwt(token)
-        return signing_key.key
+    @property
+    def base_url(self):
+        return keycloak_settings.base_url
+
+    @property
+    def client_id(self):
+        return keycloak_settings.CLIENT_ID
+
+    @property
+    def client_secret_key(self):
+        return keycloak_settings.CLIENT_SECRET or None
+
+    @property
+    def _verify(self):
+        return keycloak_settings.VERIFY_CERTIFICATE
 
     def get_userinfo(self, token):
-        """Used to keep the user up to date."""
-        response = self.get(
+        """Fetch the userinfo document for a token."""
+        return self.get(
             path="protocol/openid-connect/userinfo",
             headers={"Authorization": "Bearer " + token},
         )
-        return response
 
     def get_introspect(self, token):
-        """Is used to validate the token."""
+        """Validate a token via Keycloak's introspection endpoint.
+
+        Returns the introspection document (a dict). Network failures and
+        Keycloak server errors raise ``KeycloakAPIError`` (503) so they fail
+        closed and visibly.
+        """
         if not self.client_secret_key:
             raise RuntimeError(
                 'Please set KEYCLOAK_CONFIG["CLIENT_SECRET"] in your settings.'
@@ -51,69 +65,66 @@ class KeycloakApi:
             "client_secret": self.client_secret_key,
             "token": token,
         }
-        response = self.post("protocol/openid-connect/token/introspect", data=post_data)
-        return response
-
-    def get_public_key(self):
-        """
-        public key as key to decode JWT
-        """
-        public_key = self.get().get("public_key")
-        if not public_key:
-            return None
-        try:
-            return (
-                "-----BEGIN PUBLIC KEY-----\n"
-                + public_key
-                + "\n-----END PUBLIC KEY-----"
-            )
-        except TypeError:
-            return public_key
+        return self.post("protocol/openid-connect/token/introspect", data=post_data)
 
     def clean_response(self, response):
-        """checks the status_code and tries to return json or content"""
-        if not response.status_code >= status.HTTP_400_BAD_REQUEST:
+        """Return parsed JSON/body for 2xx, else raise a typed error.
+
+        - 5xx  -> KeycloakAPIError (503): upstream is unavailable, fail closed.
+        - 4xx  -> APIException carrying the upstream status (config/request bug).
+        """
+        if response.status_code < status.HTTP_400_BAD_REQUEST:
             try:
                 return response.json()
             except ValueError:
                 return response.content
+
+        message = self._error_message(response)
+        if response.status_code >= status.HTTP_500_INTERNAL_SERVER_ERROR:
+            logger.warning("Keycloak returned %s: %s", response.status_code, message)
+            raise KeycloakAPIError(message)
+        logger.error("Keycloak request failed %s: %s", response.status_code, message)
+        exc = APIException(message)
+        exc.status_code = response.status_code
+        raise exc
+
+    @staticmethod
+    def _error_message(response):
         try:
             error_json = response.json()
-            # Try different possible error message fields from Keycloak
             message = (
                 error_json.get("message")
                 or error_json.get("error_description")
                 or error_json.get("error")
             )
-            if not message:
-                # Fall back to content if no error fields found in JSON
-                message = response.content
-        except (KeyError, ValueError):
+        except (AttributeError, ValueError):
+            message = None
+        if not message:
             message = response.content
-        raise APIException(message, response.status_code)
+        return force_str(message)
 
     def get(self, path=None, headers=None):
-        """get only"""
-        if path:
-            url = f"{self.base_url}/{path}"
-        else:
-            url = self.base_url
-        response = self.connection.get(
-            url,
-            headers=headers,
-            timeout=self.timeout,
-            verify=keycloak_settings.user_settings.get("VERIFY_CERTIFICATE", True),
-        )
+        """GET helper. Network failures fail closed as 503."""
+        url = f"{self.base_url}/{path}" if path else self.base_url
+        try:
+            response = self.connection.get(
+                url, headers=headers, timeout=self.timeout, verify=self._verify
+            )
+        except requests.RequestException as exc:
+            logger.warning("Keycloak GET %s failed: %s", url, exc)
+            raise KeycloakAPIError() from exc
         return self.clean_response(response)
 
     def post(self, path, data):
-        """post only"""
-        response = self.connection.post(
-            f"{self.base_url}/{path}",
-            data=data,
-            verify=keycloak_settings.user_settings.get("VERIFY_CERTIFICATE", True),
-            timeout=self.timeout,
-        )
+        """POST helper. Network failures fail closed as 503."""
+        url = f"{self.base_url}/{path}"
+        try:
+            response = self.connection.post(
+                url, data=data, timeout=self.timeout, verify=self._verify
+            )
+        except requests.RequestException as exc:
+            logger.warning("Keycloak POST %s failed: %s", url, exc)
+            raise KeycloakAPIError() from exc
         return self.clean_response(response)
 
 
