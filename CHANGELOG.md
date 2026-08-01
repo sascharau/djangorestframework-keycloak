@@ -4,6 +4,15 @@ All significant changes to the project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [2.0.1] - 2026-08-01
+
+Documentation-only release: the package code is identical to 2.0.0. A new
+version is required because PyPI cannot update the project description of an
+already published release.
+
+### Changed
+- README: added the Fin3000 sponsor section.
+
 ## [2.0.0] - 2026-06-11
 
 This release fixes correctness and security defects in token validation. Several

@@ -23,6 +23,8 @@ In this project, we implement authentication using the *Authorization Code Flow*
 
 This approach allows us to keep the backend implementation relatively simple, focusing mainly on token validation, while leveraging Keycloak's robust authentication and authorization features through the frontend.
 
+📖 **Full documentation: <https://sascharau.github.io/djangorestframework-keycloak/>**
+
 ## Install
 
 ```bash
@@ -100,7 +102,7 @@ Add `drf_keycloak` to `INSTALLED_APPS`.
 INSTALLED_APPS = [
     "django.contrib.auth",
     # ...
-    "drf_keycloak"
+    "drf_keycloak",
 ]
 ```
 
@@ -141,6 +143,7 @@ Use it as usual...
 
 ```python
 from drf_keycloak.permissions import HasPermission
+
 
 class ExamplePermission(HasPermission):
     permission = "view-profile"
@@ -193,6 +196,7 @@ In any `apps.py` or file that is loaded at startup
 
 ```python
 from django.apps import AppConfig
+
 
 class MyAppConfig(AppConfig):
     """app config"""

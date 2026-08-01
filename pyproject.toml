@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "drf-keycloak"
-version = "2.0.0"
+version = "2.0.1"
 description = "Keycloak authentication plugin for Django REST Framework"
 readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.10"
@@ -50,12 +50,12 @@ test = [
     "tox",
 ]
 lint = [
-    "ruff",
+    "ruff>=0.16,<0.17",
     "pre-commit",
 ]
 doc = [
-    "Sphinx>=7,<9",
-    "sphinx_rtd_theme>=2",
+    "mkdocs>=1.6,<2",
+    "mkdocs-material>=9.5",
 ]
 dev = [
     "pytest-watch",
@@ -67,10 +67,10 @@ dev = [
     "pytest-django",
     "drf-spectacular",
     "tox",
-    "ruff",
+    "ruff>=0.16,<0.17",
     "pre-commit",
-    "Sphinx>=7,<9",
-    "sphinx_rtd_theme>=2",
+    "mkdocs>=1.6,<2",
+    "mkdocs-material>=9.5",
 ]
 
 [tool.setuptools.packages.find]

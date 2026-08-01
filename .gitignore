@@ -52,4 +52,5 @@ test_project/static/
 *.egg-info/
 dist/
 build/
+site/
 .pypirc
