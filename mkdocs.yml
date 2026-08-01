@@ -1,0 +1,70 @@
+site_name: drf-keycloak
+site_description: Keycloak authentication plugin for Django REST Framework
+site_url: https://sascharau.github.io/djangorestframework-keycloak/
+site_author: Sascha Rau
+
+repo_url: https://github.com/sascharau/djangorestframework-keycloak
+repo_name: sascharau/djangorestframework-keycloak
+edit_uri: edit/main/docs/
+
+copyright: >
+  MIT licensed &middot; sponsored by
+  <a href="https://fin3000.com">Fin3000 &ndash; accounting and invoicing for small businesses in Germany</a>
+
+theme:
+  name: material
+  language: en
+  features:
+    - content.code.copy
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+nav:
+  - Home: index.md
+  - Getting started: getting-started.md
+  - Configuration: configuration.md
+  - Permissions: permissions.md
+  - Security: security.md
+  - OpenAPI schema: openapi.md
+  - Changelog: changelog.md
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      base_path: ["."]
+  - pymdownx.superfences
+  - toc:
+      permalink: true
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/sascharau/djangorestframework-keycloak
+      name: drf-keycloak on GitHub
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/drf-keycloak/
+      name: drf-keycloak on PyPI
