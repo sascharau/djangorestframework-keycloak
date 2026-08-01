@@ -1,5 +1,16 @@
 # Keycloak Authentication for Django Rest Framework
 
+<p align="center">
+  <sub>Sponsored by</sub><br>
+  <a href="https://fin3000.com">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://fin3000.com/static/images/logo-dark.svg">
+      <img src="https://fin3000.com/static/images/logo.svg" alt="Fin3000" height="48">
+    </picture>
+  </a><br>
+  <a href="https://fin3000.com"><b>Fin3000</b></a> — accounting and invoicing for small businesses in Germany
+</p>
+
 In this project, we implement authentication using the *Authorization Code Flow* with Keycloak as the identity and access management service. Here is how the authentication flow is structured:
 
 1. **Frontend Responsibility**:
