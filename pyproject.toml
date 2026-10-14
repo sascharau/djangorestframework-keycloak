@@ -50,7 +50,7 @@ test = [
     "tox",
 ]
 lint = [
-    "ruff>=0.16,<0.17",
+    "ruff>=0.16,<0.18",
     "pre-commit",
 ]
 doc = [
@@ -67,7 +67,7 @@ dev = [
     "pytest-django",
     "drf-spectacular",
     "tox",
-    "ruff>=0.16,<0.17",
+    "ruff>=0.16,<0.18",
     "pre-commit",
     "mkdocs>=1.6,<2",
     "mkdocs-material>=9.5",
